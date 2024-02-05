@@ -1,15 +1,15 @@
 package plugin.mininggamek;
 
-import command.MiningGameStart;
+import command.MiningGame;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class main extends JavaPlugin implements Listener {
+public final class main extends JavaPlugin {
 
-    @Override
-    public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(this, this);
-        getCommand("MiningGame").setExecutor(new MiningGameStart());
-    }
+  @Override
+  public void onEnable() {
+    MiningGame miningGame = new MiningGame();
+    Bukkit.getPluginManager().registerEvents(miningGame, this);
+    getCommand("MiningGame").setExecutor(miningGame);
+  }
 }
