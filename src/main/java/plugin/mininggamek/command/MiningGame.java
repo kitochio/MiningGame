@@ -45,8 +45,6 @@ public class MiningGame implements CommandExecutor, Listener {
         player.sendMessage(item.getName());
       }
     }
-
-
   }
 
   private static void initPlayerStatus(Player player) {
@@ -60,14 +58,11 @@ public class MiningGame implements CommandExecutor, Listener {
   private static ItemStack enchantDiaPic() {
     ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
     ItemMeta meta = item.getItemMeta();
-    if (Objects.isNull(meta)) {
-      return null;
-    }
+
     meta.addEnchant(Enchantment.DIG_SPEED, 5, true); //効率強化V
     meta.addEnchant(Enchantment.DURABILITY, 3, true); //耐久力III
     meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, 3, true); //幸運III
     item.setItemMeta(meta);
     return item;
   }
-
 }
