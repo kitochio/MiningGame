@@ -38,11 +38,15 @@ public class MiningGame implements CommandExecutor, Listener {
       return;
     }
 
-    List<Item> items = e.getItems();
-    for (int i = 0; i < items.size(); i++) {
-      Item item = items.get(i);
-      player.sendMessage(item.getName());
+    if (e.getPlayer().getName().equals(player.getName())) {
+      List<Item> items = e.getItems();
+      for (int i = 0; i < items.size(); i++) {
+        Item item = items.get(i);
+        player.sendMessage(item.getName());
+      }
     }
+
+
   }
 
   private static void initPlayerStatus(Player player) {
