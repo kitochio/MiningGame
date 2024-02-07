@@ -1,8 +1,8 @@
 package plugin.mininggamek;
 
-import command.MiningGame;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import plugin.mininggamek.command.MiningGame;
 
 public final class main extends JavaPlugin {
 

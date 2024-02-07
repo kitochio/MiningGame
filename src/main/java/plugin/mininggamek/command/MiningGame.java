@@ -1,4 +1,4 @@
-package command;
+package plugin.mininggamek.command;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,32 +17,34 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import plugin.mininggamek.data.PlayerData;
 
 public class MiningGame implements CommandExecutor, Listener {
 
-  private Player player;
+  private PlayerData playerData = new PlayerData();
 
   @Override
   public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
     if (commandSender instanceof Player player) {
-      this.player = player;
-
+      playerData.setName(player.getName());
       initPlayerStatus(player);
+      player.sendMessage("GameStart！");
     }
     return false;
   }
 
   @EventHandler
   public void onDropItem(BlockDropItemEvent e) {
-    if (Objects.isNull(player)) {
+    if (Objects.isNull(playerData.getName())) {
       return;
     }
 
-    if (e.getPlayer().getName().equals(player.getName())) {
+    Player player = e.getPlayer();
+    if (player.getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (int i = 0; i < items.size(); i++) {
         Item item = items.get(i);
-        player.sendMessage(item.getName());
+        player.sendMessage("採掘したブロック：" + item.getName());
       }
     }
   }
@@ -53,6 +55,7 @@ public class MiningGame implements CommandExecutor, Listener {
     player.setFoodLevel(20);
     inventory.setItemInMainHand(enchantDiaPic());
     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 6000, 0));
+    player.sendMessage("ダイヤのピッケルと暗視効果を付与しました");
   }
 
   private static ItemStack enchantDiaPic() {
