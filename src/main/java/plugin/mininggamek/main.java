@@ -8,7 +8,7 @@ public final class main extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    MiningGame miningGame = new MiningGame();
+    MiningGame miningGame = new MiningGame(this);
     Bukkit.getPluginManager().registerEvents(miningGame, this);
     getCommand("MiningGame").setExecutor(miningGame);
   }
