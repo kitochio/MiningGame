@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -41,7 +42,7 @@ public class MiningGame implements CommandExecutor, Listener {
       playerData.setLocationX(player.getLocation().getX());
       playerData.setLocationY(player.getLocation().getY());
       playerData.setLocationZ(player.getLocation().getZ());
-      playerData.setGameTime(60);
+      playerData.setGameTime(300);
       aroundEnemyKill(player, 10);
       initPlayerStatus(player);
       player.sendMessage("GameStart！");
@@ -49,14 +50,15 @@ public class MiningGame implements CommandExecutor, Listener {
       Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
         if (playerData.getGameTime() <= 0) {
           Runnable.cancel();
-          player.sendTitle("ゲームが終了しました", "合計" + playerData.getScore() + "点", 0, 30, 0);
+          player.sendTitle("ゲームが終了しました", "今回のスコア合計は" + playerData.getScore() + "点です", 0,
+              60, 1);
           playerData.setScore(0);
           returnTeleport(player);
           return;
         }
-        playerData.setGameTime(playerData.getGameTime() - 1);
         player.sendMessage("残り時間" + playerData.getGameTime());
-      }, 0, 20);
+        playerData.setGameTime(playerData.getGameTime() - 60);
+      }, 0, 20 * 60);
     }
     return false;
   }
@@ -71,10 +73,24 @@ public class MiningGame implements CommandExecutor, Listener {
     if (player.getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (Item item : items) {
-        int point = 10; //仮にすべてのブロックの点数を１０としておきます
-        playerData.setScore(playerData.getScore() + point);
-        player.sendMessage(
-            "採掘したブロック:" + item.getName() + " " + point + "点 / 合計" + playerData.getScore() + "点");
+        int point = switch (item.getName()) {
+          case "Coal" -> 10;
+          case "Raw Iron" -> 20;
+          case "Raw Copper" -> 30;
+          case "Raw Gold" -> 50;
+          case "Redstone Dust" -> 35;
+          case "Emerald" -> 80;
+          case "Lapis Lazuli" -> 100;
+          case "Diamond" -> 1000;
+          default -> 0;
+        };
+
+        if (point > 0) {
+          playerData.setScore(playerData.getScore() + point);
+          player.sendMessage(
+              item.getName() + "を手に入れた！ " + point + "点 / 合計" + playerData.getScore()
+                  + "点");
+        }
       }
     }
   }
@@ -96,7 +112,8 @@ public class MiningGame implements CommandExecutor, Listener {
   }
 
   /**
-   * エンチャント付与したダイヤピッケルを返します
+   * エンチャント付与したダイヤピッケルを返します。
+   * ゲーム中で使い切るぐらいの耐久値にしています。
    *
    * @return ダイヤのピッケル
    */
@@ -107,6 +124,13 @@ public class MiningGame implements CommandExecutor, Listener {
     meta.addEnchant(Enchantment.DIG_SPEED, 5, true); //効率強化V
     meta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, 3, true); //幸運III
     item.setItemMeta(meta);
+
+    //耐久値を落とす
+    if (meta instanceof Damageable) {
+      Damageable damageable = (Damageable) meta;
+      damageable.setDamage(1200);
+      item.setItemMeta(damageable);
+    }
     return item;
   }
 
