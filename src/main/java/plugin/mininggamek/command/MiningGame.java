@@ -6,8 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -18,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -26,41 +23,45 @@ import org.bukkit.potion.PotionEffectType;
 import plugin.mininggamek.data.PlayerData;
 import plugin.mininggamek.main;
 
-public class MiningGame implements CommandExecutor, Listener {
+public class MiningGame extends BaseCommand implements Listener {
 
   private main main;
   private PlayerData playerData = new PlayerData();
+  long displayInterval = 20; //残り時間を表示する間隔（秒）
 
   public MiningGame(main main) {
     this.main = main;
   }
 
   @Override
-  public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-    if (commandSender instanceof Player player) {
-      playerData.setName(player.getName());
-      playerData.setLocationX(player.getLocation().getX());
-      playerData.setLocationY(player.getLocation().getY());
-      playerData.setLocationZ(player.getLocation().getZ());
-      playerData.setGameTime(300);
-      aroundEnemyKill(player, 10);
-      initPlayerStatus(player);
-      player.sendMessage("GameStart！");
+  protected boolean onExecutePlayerCommand(Player player) {
+    playerData.setName(player.getName());
+    playerData.setLocationX(player.getLocation().getX());
+    playerData.setLocationY(player.getLocation().getY());
+    playerData.setLocationZ(player.getLocation().getZ());
+    playerData.setGameTime(300);
+    aroundEnemyKill(player, 10);
+    initPlayerStatus(player);
+    player.sendMessage("GameStart！");
 
-      Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
-        if (playerData.getGameTime() <= 0) {
-          Runnable.cancel();
-          player.sendTitle("ゲームが終了しました", "今回のスコア合計は" + playerData.getScore() + "点です", 0,
-              60, 1);
-          playerData.setScore(0);
-          returnTeleport(player);
-          return;
-        }
-        player.sendMessage("残り時間" + playerData.getGameTime());
-        playerData.setGameTime(playerData.getGameTime() - 60);
-      }, 0, 20 * 60);
-    }
-    return false;
+    Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
+      if (playerData.getGameTime() <= 0) {
+        Runnable.cancel();
+        player.sendTitle("ゲームが終了しました", "今回のスコア合計は" + playerData.getScore() + "点です", 0,
+            60, 1);
+        playerData.setScore(0);
+        returnTeleport(player);
+        return;
+      }
+      player.sendMessage("残り時間" + playerData.getGameTime());
+      playerData.setGameTime(playerData.getGameTime() - displayInterval);
+    }, 0, 20 * displayInterval);
+    return true;
+  }
+
+  @Override
+  protected boolean onExecuteNPCCommand(CommandSender commandSender) {
+    return true;
   }
 
   @EventHandler
@@ -103,7 +104,6 @@ public class MiningGame implements CommandExecutor, Listener {
    */
   private static void initPlayerStatus(Player player) {
     World world = player.getWorld();
-    PlayerInventory inventory = player.getInventory();
     player.setHealth(20);
     player.setFoodLevel(20);
     world.dropItem(player.getLocation(), enchantDiaPic());

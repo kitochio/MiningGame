@@ -9,7 +9,7 @@ public class PlayerData {
 
   private String name;
   private int score;
-  private int gameTime;
+  private long gameTime;
   private double locationX;
   private double locationY;
   private double locationZ;
