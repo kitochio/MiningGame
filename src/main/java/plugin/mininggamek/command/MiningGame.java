@@ -29,7 +29,6 @@ public class MiningGame implements CommandExecutor, Listener {
 
   private main main;
   private PlayerData playerData = new PlayerData();
-  private int gameTime;
 
   public MiningGame(main main) {
     this.main = main;
@@ -42,20 +41,21 @@ public class MiningGame implements CommandExecutor, Listener {
       playerData.setLocationX(player.getLocation().getX());
       playerData.setLocationY(player.getLocation().getY());
       playerData.setLocationZ(player.getLocation().getZ());
-      gameTime = 60;
+      playerData.setGameTime(60);
       aroundEnemyKill(player, 10);
       initPlayerStatus(player);
       player.sendMessage("GameStart！");
 
       Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
-        if (gameTime <= 0) {
+        if (playerData.getGameTime() <= 0) {
           Runnable.cancel();
-          player.sendMessage("ゲームが終了しました");
+          player.sendTitle("ゲームが終了しました", "合計" + playerData.getScore() + "点", 0, 30, 0);
+          playerData.setScore(0);
           returnTeleport(player);
           return;
         }
-        gameTime -= 1;
-        player.sendMessage("残り時間" + gameTime);
+        playerData.setGameTime(playerData.getGameTime() - 1);
+        player.sendMessage("残り時間" + playerData.getGameTime());
       }, 0, 20);
     }
     return false;
@@ -71,7 +71,10 @@ public class MiningGame implements CommandExecutor, Listener {
     if (player.getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (Item item : items) {
-        player.sendMessage("採掘したブロック：" + item.getName());
+        int point = 10; //仮にすべてのブロックの点数を１０としておきます
+        playerData.setScore(playerData.getScore() + point);
+        player.sendMessage(
+            "採掘したブロック:" + item.getName() + " " + point + "点 / 合計" + playerData.getScore() + "点");
       }
     }
   }
