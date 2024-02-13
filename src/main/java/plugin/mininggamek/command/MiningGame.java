@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -27,7 +26,7 @@ public class MiningGame extends BaseCommand implements Listener {
 
   private main main;
   private PlayerData playerData = new PlayerData();
-  long displayInterval = 20; //残り時間を表示する間隔（秒）
+  long displayInterval = 10; //残り時間を減らし、その時間を表示する間隔（秒）
 
   public MiningGame(main main) {
     this.main = main;
@@ -35,27 +34,9 @@ public class MiningGame extends BaseCommand implements Listener {
 
   @Override
   protected boolean onExecutePlayerCommand(Player player) {
-    playerData.setName(player.getName());
-    playerData.setLocationX(player.getLocation().getX());
-    playerData.setLocationY(player.getLocation().getY());
-    playerData.setLocationZ(player.getLocation().getZ());
-    playerData.setGameTime(300);
-    aroundEnemyKill(player, 10);
     initPlayerStatus(player);
     player.sendMessage("GameStart！");
-
-    Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
-      if (playerData.getGameTime() <= 0) {
-        Runnable.cancel();
-        player.sendTitle("ゲームが終了しました", "今回のスコア合計は" + playerData.getScore() + "点です", 0,
-            60, 1);
-        playerData.setScore(0);
-        returnTeleport(player);
-        return;
-      }
-      player.sendMessage("残り時間" + playerData.getGameTime());
-      playerData.setGameTime(playerData.getGameTime() - displayInterval);
-    }, 0, 20 * displayInterval);
+    gameStart(player);
     return true;
   }
 
@@ -66,7 +47,7 @@ public class MiningGame extends BaseCommand implements Listener {
 
   @EventHandler
   public void onDropItem(BlockDropItemEvent e) {
-    if (Objects.isNull(playerData.getName())) {
+    if (Objects.isNull(playerData.getName()) || playerData.getGameTime() <= 0) {
       return;
     }
 
@@ -89,7 +70,7 @@ public class MiningGame extends BaseCommand implements Listener {
         if (point > 0) {
           playerData.setScore(playerData.getScore() + point);
           player.sendMessage(
-              item.getName() + "を手に入れた！ " + point + "点 / 合計" + playerData.getScore()
+              item.getName() + "を採掘した！ " + point + "点 / 合計" + playerData.getScore()
                   + "点");
         }
       }
@@ -98,15 +79,23 @@ public class MiningGame extends BaseCommand implements Listener {
 
   /**
    * ゲーム開始時のプレイヤーの状態を設定します
+   * 周囲の敵対モブを消去
+   * 名前と現在位置の登録、ゲーム時間とスコアの初期化
    * 体力と満腹度を全回復、ダイヤピッケルと暗視効果を付与
    *
    * @param player コマンドを実行したプレイヤー
    */
-  private static void initPlayerStatus(Player player) {
-    World world = player.getWorld();
+  private void initPlayerStatus(Player player) {
+    aroundEnemyKill(player, 10);
+    playerData.setName(player.getName());
+    playerData.setLocationX(player.getLocation().getX());
+    playerData.setLocationY(player.getLocation().getY());
+    playerData.setLocationZ(player.getLocation().getZ());
+    playerData.setGameTime(300);
+    playerData.setScore(0);
     player.setHealth(20);
     player.setFoodLevel(20);
-    world.dropItem(player.getLocation(), enchantDiaPic());
+    player.getWorld().dropItem(player.getLocation(), enchantDiaPic());
     player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 6000, 0));
     player.sendMessage("ダイヤのピッケルと暗視効果を付与しました");
   }
@@ -117,7 +106,7 @@ public class MiningGame extends BaseCommand implements Listener {
    *
    * @return ダイヤのピッケル
    */
-  private static ItemStack enchantDiaPic() {
+  private ItemStack enchantDiaPic() {
     ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
     ItemMeta meta = item.getItemMeta();
 
@@ -135,20 +124,6 @@ public class MiningGame extends BaseCommand implements Listener {
   }
 
   /**
-   * プレイヤーをデータオブジェクトに保存された座標にテレポートさせます
-   *
-   * @param player コマンドを実行したプレイヤー
-   */
-  private void returnTeleport(Player player) {
-    World world = player.getWorld();
-    double x = playerData.getLocationX();
-    double y = playerData.getLocationY();
-    double z = playerData.getLocationZ();
-    Location returnLocation = new Location(world, x, y, z);
-    player.teleport(returnLocation);
-  }
-
-  /**
    * プレイヤーの周囲の敵対モブを消去します。
    *
    * @param player コマンドを実行したプレイヤー
@@ -161,6 +136,38 @@ public class MiningGame extends BaseCommand implements Listener {
         entity.remove();
       }
     }
+  }
 
+  /**
+   * ゲームを開始して、一定時間が経過したら終了します。
+   * 終了の際にスコア合計を表示します。
+   *
+   * @param player コマンドを実行したプレイヤー
+   */
+  private void gameStart(Player player) {
+    Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
+      if (playerData.getGameTime() <= 0) {
+        Runnable.cancel();
+        player.sendTitle("ゲームが終了しました"
+            , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 60, 1);
+        returnTeleport(player);
+        return;
+      }
+      player.sendMessage("残り " + playerData.getGameTime() + "秒");
+      playerData.setGameTime(playerData.getGameTime() - displayInterval);
+    }, 0, 20 * displayInterval);
+  }
+
+  /**
+   * プレイヤーをデータオブジェクトに保存された座標にテレポートさせます
+   *
+   * @param player コマンドを実行したプレイヤー
+   */
+  private void returnTeleport(Player player) {
+    double x = playerData.getLocationX();
+    double y = playerData.getLocationY();
+    double z = playerData.getLocationZ();
+    Location returnLocation = new Location(player.getWorld(), x, y, z);
+    player.teleport(returnLocation);
   }
 }
