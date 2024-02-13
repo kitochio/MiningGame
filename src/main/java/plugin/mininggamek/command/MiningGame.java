@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -14,34 +15,35 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import plugin.mininggamek.Main;
 import plugin.mininggamek.data.PlayerData;
-import plugin.mininggamek.main;
 
 public class MiningGame extends BaseCommand implements Listener {
 
-  private main main;
+  private Main main;
   private PlayerData playerData = new PlayerData();
-  long displayInterval = 10; //残り時間を減らし、その時間を表示する間隔（秒）
 
-  public MiningGame(main main) {
+  public MiningGame(Main main) {
     this.main = main;
   }
 
   @Override
-  protected boolean onExecutePlayerCommand(Player player) {
+  protected boolean onExecutePlayerCommand(Player player, Command command, String s, String[] strings) {
     initPlayerStatus(player);
-    player.sendMessage("GameStart！");
+    player.sendTitle("GameStart!", "制限時間300秒、終了したらこの場所にもどるよ。", 0, 70, 10);
     gameStart(player);
     return true;
   }
 
   @Override
-  protected boolean onExecuteNPCCommand(CommandSender commandSender) {
+  protected boolean onExecuteNPCCommand(CommandSender commandSender, Command command, String s,
+      String[] strings) {
     return true;
   }
 
@@ -58,7 +60,7 @@ public class MiningGame extends BaseCommand implements Listener {
         int point = switch (item.getName()) {
           case "Coal" -> 10;
           case "Raw Iron" -> 20;
-          case "Raw Copper" -> 30;
+          case "Raw Copper" -> 15;
           case "Raw Gold" -> 50;
           case "Redstone Dust" -> 35;
           case "Emerald" -> 80;
@@ -66,15 +68,24 @@ public class MiningGame extends BaseCommand implements Listener {
           case "Diamond" -> 1000;
           default -> 0;
         };
-
         if (point > 0) {
           playerData.setScore(playerData.getScore() + point);
-          player.sendMessage(
-              item.getName() + "を採掘した！ " + point + "点 / 合計" + playerData.getScore()
-                  + "点");
+          player.sendMessage(item.getName() + "を採掘した！ +"
+              + point + "点 " + "/ 合計" + playerData.getScore() + "点");
         }
       }
     }
+  }
+
+  @EventHandler
+  public void onPlayerRespawn(PlayerRespawnEvent e) {
+    Player player = e.getPlayer();
+    e.setRespawnLocation(getReturnLocation(player));
+    Bukkit.getScheduler().runTaskLater(main, run -> {
+      player.getWorld().dropItem(player.getLocation(), enchantDiaPic());
+      player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION
+          , playerData.getGameTime() * 20, 0));
+    }, 20);
   }
 
   /**
@@ -145,17 +156,22 @@ public class MiningGame extends BaseCommand implements Listener {
    * @param player コマンドを実行したプレイヤー
    */
   private void gameStart(Player player) {
+    player.sendMessage("GameStart！");
+
     Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
       if (playerData.getGameTime() <= 0) {
         Runnable.cancel();
         player.sendTitle("ゲームが終了しました"
-            , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 60, 1);
-        returnTeleport(player);
+            , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
+        player.teleport(getReturnLocation(player));
         return;
       }
-      player.sendMessage("残り " + playerData.getGameTime() + "秒");
-      playerData.setGameTime(playerData.getGameTime() - displayInterval);
-    }, 0, 20 * displayInterval);
+      //10秒に一回残り時間を表示します
+      if (playerData.getGameTime() % 10 == 0) {
+        player.sendMessage("残り " + playerData.getGameTime() + "秒");
+      }
+      playerData.setGameTime(playerData.getGameTime() - 1);
+    }, 0, 20);
   }
 
   /**
@@ -163,11 +179,11 @@ public class MiningGame extends BaseCommand implements Listener {
    *
    * @param player コマンドを実行したプレイヤー
    */
-  private void returnTeleport(Player player) {
+
+  private Location getReturnLocation(Player player) {
     double x = playerData.getLocationX();
     double y = playerData.getLocationY();
     double z = playerData.getLocationZ();
-    Location returnLocation = new Location(player.getWorld(), x, y, z);
-    player.teleport(returnLocation);
+    return new Location(player.getWorld(), x, y, z);
   }
 }
