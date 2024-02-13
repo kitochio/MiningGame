@@ -35,6 +35,12 @@ public class MiningGame extends BaseCommand implements Listener {
 
   @Override
   protected boolean onExecutePlayerCommand(Player player, Command command, String s, String[] strings) {
+    if (strings.length == 1) {
+      if (Objects.equals(strings[0], "end")) {
+        playerData.setGameTime(0);
+        return false;
+      }
+    }
     initPlayerStatus(player);
     player.sendTitle("GameStart!", "制限時間300秒、終了したらこの場所にもどるよ。", 0, 70, 10);
     gameStart(player);
@@ -80,12 +86,16 @@ public class MiningGame extends BaseCommand implements Listener {
   @EventHandler
   public void onPlayerRespawn(PlayerRespawnEvent e) {
     Player player = e.getPlayer();
+    if (playerData.getGameTime() == 0) {
+      return;
+    }
     e.setRespawnLocation(getReturnLocation(player));
     Bukkit.getScheduler().runTaskLater(main, run -> {
-      player.getWorld().dropItem(player.getLocation(), enchantDiaPic());
+      player.getInventory().setItemInMainHand(enchantDiaPic());
       player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION
           , playerData.getGameTime() * 20, 0));
     }, 20);
+    player.sendMessage("再スタート、終了したい場合はコマンドの引数にendをいれてね");
   }
 
   /**
@@ -107,7 +117,8 @@ public class MiningGame extends BaseCommand implements Listener {
     player.setHealth(20);
     player.setFoodLevel(20);
     player.getWorld().dropItem(player.getLocation(), enchantDiaPic());
-    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 6000, 0));
+    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION
+        , playerData.getGameTime() * 20, 0));
     player.sendMessage("ダイヤのピッケルと暗視効果を付与しました");
   }
 
@@ -161,6 +172,7 @@ public class MiningGame extends BaseCommand implements Listener {
     Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
       if (playerData.getGameTime() <= 0) {
         Runnable.cancel();
+        player.sendMessage("ゲームを終了しました");
         player.sendTitle("ゲームが終了しました"
             , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
         player.teleport(getReturnLocation(player));
