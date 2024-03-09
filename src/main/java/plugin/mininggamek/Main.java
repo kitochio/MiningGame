@@ -2,14 +2,14 @@ package plugin.mininggamek;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import plugin.mininggamek.command.MiningGame;
+import plugin.mininggamek.command.MiningGameCommand;
 
 public final class Main extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    MiningGame miningGame = new MiningGame(this);
-    Bukkit.getPluginManager().registerEvents(miningGame, this);
-    getCommand("MiningGame").setExecutor(miningGame);
+    MiningGameCommand miningGameCommand = new MiningGameCommand(this);
+    Bukkit.getPluginManager().registerEvents(miningGameCommand, this);
+    getCommand("MiningGame").setExecutor(miningGameCommand);
   }
 }

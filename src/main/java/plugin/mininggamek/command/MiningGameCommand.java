@@ -1,5 +1,6 @@
 package plugin.mininggamek.command;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import org.bukkit.Bukkit;
@@ -22,27 +23,39 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import plugin.mininggamek.Main;
+import plugin.mininggamek.PlayerScoreData;
 import plugin.mininggamek.data.PlayerData;
+import plugin.mininggamek.mapper.data.PlayerScore;
 
-public class MiningGame extends BaseCommand implements Listener {
+public class MiningGameCommand extends BaseCommand implements Listener {
 
-  private Main main;
-  private PlayerData playerData = new PlayerData();
+  private final Main main;
+  private final PlayerScoreData playerScoreData = new PlayerScoreData();
+  private final PlayerData playerData = new PlayerData();
 
-  public MiningGame(Main main) {
+  public MiningGameCommand(Main main) {
     this.main = main;
   }
 
   @Override
   protected boolean onExecutePlayerCommand(Player player, Command command, String s, String[] strings) {
     if (strings.length == 1) {
-      if (Objects.equals(strings[0], "end")) {
-        playerData.setGameTime(0);
-        return false;
+      //第一引数にendが入力されたらゲーム終了、listが入力されたらランキングを表示
+      switch (strings[0]) {
+        case "end" -> {
+          playerData.setGameTime(0);
+          return false;
+        }
+        case "list" -> {
+          sendPlayerScoreList(player);
+          return false;
+        }
       }
     }
+    //ゲームスタート
     initPlayerStatus(player);
-    player.sendTitle("GameStart!", "制限時間300秒、終了したらこの場所にもどるよ。", 0, 70, 10);
+    player.sendTitle("GameStart!", "制限時間300秒、終了したらこの場所にもどるよ。",
+        0, 70, 10);
     gameStart(player);
     return true;
   }
@@ -58,9 +71,41 @@ public class MiningGame extends BaseCommand implements Listener {
     if (Objects.isNull(playerData.getName()) || playerData.getGameTime() <= 0) {
       return;
     }
+    addPoints(e);
+  }
 
-    Player player = e.getPlayer();
-    if (player.getName().equals(playerData.getName())) {
+  @EventHandler
+  public void onPlayerRespawn(PlayerRespawnEvent e) {
+    if (playerData.getGameTime() <= 0) {
+      return;
+    }
+    gameRestart(e);
+  }
+
+  /**
+   * 現在登録されているスコアの一覧をメッセージに送る
+   *
+   * @param player コマンドを実行したプレイヤー
+   */
+  private void sendPlayerScoreList(Player player) {
+    List<PlayerScore> playerScoreList = playerScoreData.selectList();
+    for (PlayerScore playerScore : playerScoreList) {
+      player.sendMessage(playerScore.getId() + " | "
+          + playerScore.getPlayerName() + " | "
+          + playerScore.getScore() + " | "
+          + playerScore.getRegisteredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+    }
+  }
+
+  /**
+   * ブロックから出現したアイテムによってポイントを加算します。
+   * 出現したアイテムの名前がポイントを指定しているアイテム名と同じ場合、
+   * playerDataのscoreにポイントを加算します。
+   *
+   * @param e アイテムドロップイベント
+   */
+  private void addPoints(BlockDropItemEvent e) {
+    if (e.getPlayer().getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (Item item : items) {
         int point = switch (item.getName()) {
@@ -76,26 +121,28 @@ public class MiningGame extends BaseCommand implements Listener {
         };
         if (point > 0) {
           playerData.setScore(playerData.getScore() + point);
-          player.sendMessage(item.getName() + "を採掘した！ +"
+          e.getPlayer().sendMessage(item.getName() + "を採掘した！ +"
               + point + "点 " + "/ 合計" + playerData.getScore() + "点");
         }
       }
     }
   }
 
-  @EventHandler
-  public void onPlayerRespawn(PlayerRespawnEvent e) {
-    Player player = e.getPlayer();
-    if (playerData.getGameTime() == 0) {
-      return;
-    }
-    e.setRespawnLocation(getReturnLocation(player));
+  /**
+   * リスポーン位置をコマンド実行時の位置に変更して、アイテムと暗視を付与します。
+   * playerDataに保存された位置をリスポーン地点に設定して、リスポーンの1秒後にアイテムと暗視効果を付与します。
+   * 暗視の効果時間はゲームの残り時間と同じになります。
+   *
+   * @param e プレイヤーリスポーンイベント
+   */
+  private void gameRestart(PlayerRespawnEvent e) {
+    e.setRespawnLocation(getReturnLocation(e.getPlayer()));
     Bukkit.getScheduler().runTaskLater(main, run -> {
-      player.getInventory().setItemInMainHand(enchantDiaPic());
-      player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION
+      e.getPlayer().getInventory().setItemInMainHand(enchantDiaPic());
+      e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION
           , playerData.getGameTime() * 20, 0));
     }, 20);
-    player.sendMessage("再スタート、終了したい場合はコマンドの引数にendをいれてね");
+    e.getPlayer().sendMessage("再スタート、終了したい場合はコマンドの引数にendをいれてね");
   }
 
   /**
@@ -153,11 +200,7 @@ public class MiningGame extends BaseCommand implements Listener {
    */
   private void aroundEnemyKill(Player player, double radius) {
     List<Entity> nearbyEntities = player.getNearbyEntities(radius, radius, radius);
-    for (Entity entity : nearbyEntities) {
-      if (entity instanceof Monster) {
-        entity.remove();
-      }
-    }
+    nearbyEntities.stream().filter(entity -> entity instanceof Monster).forEach(Entity::remove);
   }
 
   /**
@@ -172,26 +215,28 @@ public class MiningGame extends BaseCommand implements Listener {
     Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
       if (playerData.getGameTime() <= 0) {
         Runnable.cancel();
-        player.sendMessage("ゲームを終了しました");
+        player.sendMessage("ゲーム終了");
         player.sendTitle("ゲームが終了しました"
             , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
         player.teleport(getReturnLocation(player));
+        playerScoreData.insert(new PlayerScore(playerData.getName(), playerData.getScore()));
         return;
       }
       //10秒に一回残り時間を表示します
       if (playerData.getGameTime() % 10 == 0) {
         player.sendMessage("残り " + playerData.getGameTime() + "秒");
       }
+
       playerData.setGameTime(playerData.getGameTime() - 1);
     }, 0, 20);
   }
 
   /**
-   * プレイヤーをデータオブジェクトに保存された座標にテレポートさせます
+   * データオブジェクトからゲーム開始位置を取得します
    *
    * @param player コマンドを実行したプレイヤー
+   * @return ゲーム開始位置
    */
-
   private Location getReturnLocation(Player player) {
     double x = playerData.getLocationX();
     double y = playerData.getLocationY();
