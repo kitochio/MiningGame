@@ -40,13 +40,13 @@ public class MiningGameCommand extends BaseCommand implements Listener {
   @Override
   protected boolean onExecutePlayerCommand(Player player, Command command, String s, String[] strings) {
     if (strings.length == 1) {
-      //第一引数にendが入力されたらゲーム終了、listが入力されたらランキングを表示
+      //第一引数にendが入力されたらゲーム終了、rankが入力されたらランキングを表示
       switch (strings[0]) {
         case "end" -> {
           playerData.setGameTime(0);
           return false;
         }
-        case "list" -> {
+        case "rank" -> {
           sendPlayerScoreList(player);
           return false;
         }
@@ -83,14 +83,16 @@ public class MiningGameCommand extends BaseCommand implements Listener {
   }
 
   /**
-   * 現在登録されているスコアの一覧をメッセージに送る
+   * 現在登録されているランキングの一覧をメッセージに送る
    *
    * @param player コマンドを実行したプレイヤー
    */
   private void sendPlayerScoreList(Player player) {
     List<PlayerScore> playerScoreList = playerScoreData.selectList();
+    int i = 0;
     for (PlayerScore playerScore : playerScoreList) {
-      player.sendMessage(playerScore.getId() + " | "
+      i++;
+      player.sendMessage(i + "位 | "
           + playerScore.getPlayerName() + " | "
           + playerScore.getScore() + " | "
           + playerScore.getRegisteredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -220,6 +222,7 @@ public class MiningGameCommand extends BaseCommand implements Listener {
             , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
         player.teleport(getReturnLocation(player));
         playerScoreData.insert(new PlayerScore(playerData.getName(), playerData.getScore()));
+        player.sendMessage("コマンドの引数にrankと入力するとランキングが見れます");
         return;
       }
       //10秒に一回残り時間を表示します
