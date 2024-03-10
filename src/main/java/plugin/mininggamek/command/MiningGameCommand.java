@@ -56,6 +56,10 @@ public class MiningGameCommand extends BaseCommand implements Listener {
       }
     }
     //ゲームスタート
+    if (playerData.getGameTime() > 0) {
+      player.sendMessage("すでにゲームが実行されています");
+      return false;
+    }
     initPlayerStatus(player);
     player.sendTitle("GameStart!", "制限時間300秒、終了したらこの場所にもどるよ。",
         0, 70, 10);
@@ -117,7 +121,7 @@ public class MiningGameCommand extends BaseCommand implements Listener {
           case "Coal" -> 10;
           case "Raw Iron" -> 20;
           case "Raw Copper" -> 15;
-          case "Raw Gold" -> 50;
+          case "Raw Gold" -> 120;
           case "Redstone Dust" -> 35;
           case "Emerald" -> 80;
           case "Lapis Lazuli" -> 100;
@@ -220,7 +224,7 @@ public class MiningGameCommand extends BaseCommand implements Listener {
     Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
       if (playerData.getGameTime() <= 0) {
         Runnable.cancel();
-        player.sendMessage("ゲーム終了");
+        player.sendMessage("ゲーム終了 スコア合計" + playerData.getScore() + "点");
         player.sendTitle("ゲームが終了しました"
             , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
         player.teleport(getReturnLocation(player));
