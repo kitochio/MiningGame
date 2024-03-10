@@ -30,7 +30,7 @@ public class PlayerScoreData {
   }
 
   /**
-   * player_scoreテーブルから一覧でスコア情報を取得する
+   * mininggame_scoreテーブルから一覧でスコア情報を取得する
    *
    * @return スコア情報
    */
@@ -39,7 +39,7 @@ public class PlayerScoreData {
   }
 
   /**
-   * プレイヤースコアテーブルにスコア情報を登録する
+   * mininggame_scoreテーブルにスコア情報を登録する
    *
    * @param playerScore プレイヤースコア
    */

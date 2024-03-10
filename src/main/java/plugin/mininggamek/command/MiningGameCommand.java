@@ -50,6 +50,9 @@ public class MiningGameCommand extends BaseCommand implements Listener {
           sendPlayerScoreList(player);
           return false;
         }
+        default -> {
+          player.sendMessage("設定のない引数が入力されました\nend:ゲームを終了　rank:ランキングを表示");
+          return false;}
       }
     }
     //ゲームスタート
@@ -100,9 +103,9 @@ public class MiningGameCommand extends BaseCommand implements Listener {
   }
 
   /**
-   * ブロックから出現したアイテムによってポイントを加算します。
-   * 出現したアイテムの名前がポイントを指定しているアイテム名と同じ場合、
-   * playerDataのscoreにポイントを加算します。
+   * ブロックから出現したアイテムにより、ポイントを加算して合計値を表示します。
+   * 出現したアイテムの名前が、ポイントを指定しているアイテム名と同じ場合に
+   * playerDataのscoreにポイントを加算して、合計値を表示します。
    *
    * @param e アイテムドロップイベント
    */
