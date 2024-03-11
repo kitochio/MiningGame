@@ -18,7 +18,7 @@ Mincraft 1.20.4<br>
 MySqlの設定<br>
 ユーザー名 root<br>
 パスワード rootroot<br>
-データーベース名　spigot_server
+データーベース名　spigot_server<br>
 テーブル名 mininggame_score<br>
 URL mysql://localhost:3306/spigot_server
 
