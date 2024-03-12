@@ -25,8 +25,12 @@ ___注：ランキング機能を動作させる場合は、MySqlをローカル
 
 ___テーブルの作成は　MySql上で下記のコマンドで設定してください___
 - Macの場合  
-`CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id));`
+```sql
+CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id));
+```
 
 - Windowsの場合  
-`CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id)) DEFAULT CHARSET=utf8;`
+```sql
+CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id)) DEFAULT CHARSET=utf8;
+```
 
