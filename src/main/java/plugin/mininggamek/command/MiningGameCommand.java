@@ -117,15 +117,17 @@ public class MiningGameCommand extends BaseCommand implements Listener {
     if (e.getPlayer().getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (Item item : items) {
-        int point = switch (item.getName()) {
-          case "Coal" -> 10;
-          case "Raw Iron" -> 20;
-          case "Raw Copper" -> 15;
-          case "Raw Gold" -> 120;
-          case "Redstone Dust" -> 35;
-          case "Emerald" -> 80;
-          case "Lapis Lazuli" -> 100;
-          case "Diamond" -> 1000;
+        //getType()なんて便利なものがあったのですね,enum型だと候補にでてきて便利
+        Material material = item.getItemStack().getType();
+        int point = switch (material) {
+          case COAL -> 10;
+          case RAW_IRON -> 20;
+          case RAW_COPPER -> 15;
+          case RAW_GOLD -> 120;
+          case REDSTONE -> 35;
+          case EMERALD -> 80;
+          case LAPIS_LAZULI -> 100;
+          case DIAMOND -> 1000;
           default -> 0;
         };
         if (point > 0) {
