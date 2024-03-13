@@ -132,8 +132,9 @@ public class MiningGameCommand extends BaseCommand implements Listener {
         };
         if (point > 0) {
           playerData.setScore(playerData.getScore() + point);
-          e.getPlayer().sendMessage(item.getName() + "を採掘した！ +"
-              + point + "点 " + "/ 合計" + playerData.getScore() + "点");
+          //string.formatを使用しました、こちらのほうが見やすいですね
+          String message = "%sを採掘した！ +%d点 / 合計%d点".formatted(item.getName(), point, playerData.getScore());
+          e.getPlayer().sendMessage(message);
         }
       }
     }
@@ -226,9 +227,9 @@ public class MiningGameCommand extends BaseCommand implements Listener {
     Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
       if (playerData.getGameTime() <= 0) {
         Runnable.cancel();
-        player.sendMessage("ゲーム終了 スコア合計" + playerData.getScore() + "点");
+        player.sendMessage("ゲーム終了 スコア合計%d点".formatted(playerData.getScore()));
         player.sendTitle("ゲームが終了しました"
-            , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
+            , "今回のスコア合計は%d点です".formatted(playerData.getScore()), 0, 70, 10);
         player.teleport(getReturnLocation(player));
         playerScoreData.insert(new PlayerScore(playerData.getName(), playerData.getScore()));
         player.sendMessage("コマンドの引数にrankと入力するとランキングが見れます");
@@ -236,7 +237,7 @@ public class MiningGameCommand extends BaseCommand implements Listener {
       }
       //10秒に一回残り時間を表示します
       if (playerData.getGameTime() % 10 == 0) {
-        player.sendMessage("残り " + playerData.getGameTime() + "秒");
+        player.sendMessage("残り %d秒".formatted(playerData.getGameTime()));
       }
 
       playerData.setGameTime(playerData.getGameTime() - 1);
