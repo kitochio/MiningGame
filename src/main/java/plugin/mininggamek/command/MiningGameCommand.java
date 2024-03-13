@@ -117,7 +117,6 @@ public class MiningGameCommand extends BaseCommand implements Listener {
     if (e.getPlayer().getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (Item item : items) {
-        //getType()なんて便利なものがあったのですね,enum型だと候補にでてきて便利
         Material material = item.getItemStack().getType();
         int point = switch (material) {
           case COAL -> 10;
@@ -132,7 +131,6 @@ public class MiningGameCommand extends BaseCommand implements Listener {
         };
         if (point > 0) {
           playerData.setScore(playerData.getScore() + point);
-          //string.formatを使用しました、こちらのほうが見やすいですね
           String message = "%sを採掘した！ +%d点 / 合計%d点".formatted(item.getName(), point, playerData.getScore());
           e.getPlayer().sendMessage(message);
         }
