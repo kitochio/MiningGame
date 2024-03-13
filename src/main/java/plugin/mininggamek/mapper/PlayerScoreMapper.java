@@ -10,6 +10,6 @@ public interface PlayerScoreMapper {
   @Select("SELECT * FROM mininggame_score ORDER BY score DESC LIMIT 5")
   List<PlayerScore> selectList();
 
-  @Insert("insert mininggame_score(player_name, score, registered_at) values (#{playerName}, #{score}, now())")
+  @Insert("INSERT mininggame_score(player_name, score, registered_at) VALUES (#{playerName}, #{score}, now())")
   int insert(PlayerScore playerScore);
 }
