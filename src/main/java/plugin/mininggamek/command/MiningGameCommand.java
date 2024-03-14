@@ -117,21 +117,22 @@ public class MiningGameCommand extends BaseCommand implements Listener {
     if (e.getPlayer().getName().equals(playerData.getName())) {
       List<Item> items = e.getItems();
       for (Item item : items) {
-        int point = switch (item.getName()) {
-          case "Coal" -> 10;
-          case "Raw Iron" -> 20;
-          case "Raw Copper" -> 15;
-          case "Raw Gold" -> 120;
-          case "Redstone Dust" -> 35;
-          case "Emerald" -> 80;
-          case "Lapis Lazuli" -> 100;
-          case "Diamond" -> 1000;
+        Material material = item.getItemStack().getType();
+        int point = switch (material) {
+          case COAL -> 10;
+          case RAW_IRON -> 20;
+          case RAW_COPPER -> 15;
+          case RAW_GOLD -> 120;
+          case REDSTONE -> 35;
+          case EMERALD -> 80;
+          case LAPIS_LAZULI -> 100;
+          case DIAMOND -> 1000;
           default -> 0;
         };
         if (point > 0) {
           playerData.setScore(playerData.getScore() + point);
-          e.getPlayer().sendMessage(item.getName() + "を採掘した！ +"
-              + point + "点 " + "/ 合計" + playerData.getScore() + "点");
+          String message = "%sを採掘した！ +%d点 / 合計%d点".formatted(item.getName(), point, playerData.getScore());
+          e.getPlayer().sendMessage(message);
         }
       }
     }
@@ -224,9 +225,9 @@ public class MiningGameCommand extends BaseCommand implements Listener {
     Bukkit.getScheduler().runTaskTimer(main, Runnable -> {
       if (playerData.getGameTime() <= 0) {
         Runnable.cancel();
-        player.sendMessage("ゲーム終了 スコア合計" + playerData.getScore() + "点");
+        player.sendMessage("ゲーム終了 スコア合計%d点".formatted(playerData.getScore()));
         player.sendTitle("ゲームが終了しました"
-            , "今回のスコア合計は" + playerData.getScore() + "点です", 0, 70, 10);
+            , "今回のスコア合計は%d点です".formatted(playerData.getScore()), 0, 70, 10);
         player.teleport(getReturnLocation(player));
         playerScoreData.insert(new PlayerScore(playerData.getName(), playerData.getScore()));
         player.sendMessage("コマンドの引数にrankと入力するとランキングが見れます");
@@ -234,7 +235,7 @@ public class MiningGameCommand extends BaseCommand implements Listener {
       }
       //10秒に一回残り時間を表示します
       if (playerData.getGameTime() % 10 == 0) {
-        player.sendMessage("残り " + playerData.getGameTime() + "秒");
+        player.sendMessage("残り %d秒".formatted(playerData.getGameTime()));
       }
 
       playerData.setGameTime(playerData.getGameTime() - 1);
