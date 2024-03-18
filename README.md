@@ -34,7 +34,7 @@ https://github.com/yoshi-koyama/docker-mysql-hands-on
 - URL mysql://localhost:3307/spigot_server
 - テーブル　id(int) | player_name(varchar) | score(int) | registered_at(datetime)
 
-テーブルは、MySql上で下記のコマンドを実行すると作成できます（Docker使用時は不要です）
+テーブルは、MySQL上で下記のコマンドを実行すると作成できます（Docker使用時は不要です）
 - Macの場合  
 ```sql
 CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id));
