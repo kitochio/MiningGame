@@ -23,6 +23,9 @@ Dockerがインストールされている環境でしたら、DockerによるMy
 
 （Windows環境の方はターミナルとしてGit BashやWSLをご使用ください）
 
+__DockerによるMySQLの構築は下記のハンズオンを参考にさせていただきました__  
+https://github.com/yoshi-koyama/docker-mysql-hands-on
+
 ### MySql設定値
 - ユーザー名 root
 - パスワード rootroot
