@@ -7,11 +7,13 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootroot  # ルートパスワードの設定
-      MYSQL_DATABASE: mydatabase  # 作成するデータベース名
+      - TZ=Asia/Tokyo
+      - MYSQL_ROOT_PASSWORD=rootroot  # ルートパスワードの設定
+      - MYSQL_DATABASE=spigot_server  # 作成するデータベース名
     ports:
       - "3307:3306"  # ポートマッピング（ホスト:コンテナ）
     volumes:
+      - ./sql:/docker-entrypoint-initdb.d
       - my-db:/var/lib/mysql  # データの永続化
 volumes:
   my-db:
