@@ -13,7 +13,7 @@
 - Spigot 1.20.4
 - Mincraft 1.20.4
 
-### MySqlの設定
+### MySQLの設定
 ___注：ランキング機能を動作させる場合は、MySQLをローカルホストで動作させる必要があります___
 
 Dockerがインストールされている環境でしたら、DockerによるMySQLの構築が可能です。
@@ -26,7 +26,7 @@ Dockerがインストールされている環境でしたら、DockerによるMy
 __DockerによるMySQLの構築は下記のハンズオンを参考にさせていただきました__  
 https://github.com/yoshi-koyama/docker-mysql-hands-on
 
-### MySql設定値
+### MySQL設定値
 - ユーザー名 root
 - パスワード rootroot
 - データーベース名　spigot_server
