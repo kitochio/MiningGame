@@ -13,17 +13,25 @@
 - Spigot 1.20.4
 - Mincraft 1.20.4
 
+### MySqlの設定
 ___注：ランキング機能を動作させる場合は、MySqlをローカルホストで動作させる必要があります___
 
-### MySqlの設定
+Dockerがインストールされている環境でしたら、DockerによるMySQLの構築が可能です。
+1. ターミナルでdocker-mysql-mining-gameフォルダに移動
+2. 「docker compose up -d」コマンドでコンテナを起動
+3. 「docker compose down」で終了することができます
+
+（Windows環境の方はターミナルとしてGit BashやWSLをご使用ください）
+
+### MySql設定値
 - ユーザー名 root
 - パスワード rootroot
 - データーベース名　spigot_server
 - テーブル名 mininggame_score
-- URL mysql://localhost:3306/spigot_server
+- URL mysql://localhost:3307/spigot_server
 - テーブル　id(int) | player_name(varchar) | score(int) | registered_at(datetime)
 
-___テーブルの作成は　MySql上で下記のコマンドで設定してください___
+テーブルは、MySql上で下記のコマンドを実行すると作成できます（Docker使用時は不要です）
 - Macの場合  
 ```sql
 CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id));
