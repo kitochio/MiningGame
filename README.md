@@ -34,7 +34,7 @@ https://github.com/yoshi-koyama/docker-mysql-hands-on
 - URL mysql://localhost:3307/spigot_server
 - テーブル  
 
-| Field         | Type         | Null | Key | Default | Extra          |
+| Field         | Type         | Nullable | Key | Default | Extra          |
 | ---- | ---- | ---- | ---- | ---- | ---- |
 | id            | int unsigned | NO   | PRI | NULL    | auto_increment |
 | player_name   | varchar(100) | NO   |     | NULL    |                |
