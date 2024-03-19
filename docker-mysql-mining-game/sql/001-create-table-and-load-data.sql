@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS mininggame_score;
 CREATE TABLE mininggame_score (
   id int unsigned AUTO_INCREMENT,
   player_name VARCHAR(100) NOT NULL,
-  score int,
+  score int NOT NULL,
   registered_at datetime NOT NULL,
   PRIMARY KEY(id)
 );
