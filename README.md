@@ -1,6 +1,8 @@
 ## 鉱石採掘を簡単に、ポイントを獲得するゲームでいつの間にか鉱石が手に入ります！
 （マインクラフトのSpigotサーバー用のプラグインです）
 
+https://github.com/user-attachments/assets/9e8f8b8b-c775-4aeb-8472-cddcefab366f
+
 ### 遊び方
 1. お好きなところで「/mininggame」と入力すると採掘ゲームが開始されます
    - 「/mininggame end」と入力するとゲームを終了できます
