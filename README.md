@@ -21,10 +21,12 @@ PaperMC の新しいバージョンでもそのまま動作します。
 PaperMC 1.20.5 以降をご利用の場合、サーバ実行に Java 21 が必要です。
 
 ### プラグインの導入方法
-1. 後述の「ビルド方法」セクションに従って `miningGameK-1.0-SNAPSHOT-all.jar` を生成します。
+1. プラグイン jar を入手します（どちらかの方法で）:
+   - **[Releases](https://github.com/kitochio/MiningGame/releases) ページから最新の `miningGameK-x.y.z-all.jar` をダウンロード（推奨）**
+   - もしくは後述の「ビルド方法」セクションに従ってソースからビルド
 2. Spigot / PaperMC サーバの `plugins/` フォルダに jar をコピーします。
 3. サーバを起動（既に起動している場合は再起動）します。
-4. 起動ログに `[miningGameK] Enabling miningGameK v1.0-SNAPSHOT` と表示されれば導入成功です。
+4. 起動ログに `[miningGameK] Enabling miningGameK v<バージョン>` と表示されれば導入成功です。
 
 ### MySQLの設定
 ___注：ランキング機能を動作させる場合は、MySQLをローカルホストで動作させる必要があります___
@@ -78,7 +80,7 @@ CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), s
 ./gradlew shadowJar
 ```
 
-生成物 `build/libs/miningGameK-1.0-SNAPSHOT-all.jar` を、
+生成物 `build/libs/miningGameK-<バージョン>-all.jar` を、
 Spigot / Paper サーバの `plugins/` フォルダにコピーして再起動してください。
 
 ※ MyBatis と MySQL JDBC ドライバを同梱する必要があるため、通常の `build` ではなく
