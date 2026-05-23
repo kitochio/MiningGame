@@ -12,8 +12,13 @@ https://github.com/user-attachments/assets/9e8f8b8b-c775-4aeb-8472-cddcefab366f
    - データーベースにスコアが登録されます、「/mininggame rank」と入力するとランキングが表示されます
 
 ### 対応するバージョン
-- Spigot 1.20.4
-- Mincraft 1.20.4
+- ビルド対象API: Spigot 1.20.4 (Java 17)
+- 動作確認済みサーバ: Spigot 1.20.4 / PaperMC 1.21.11
+- Minecraft Java Edition 1.20.4 以降
+
+※ Bukkit 標準 API のみ使用しているため、Spigot 1.20.4 でビルドした jar が
+PaperMC の新しいバージョンでもそのまま動作します。
+PaperMC 1.20.5 以降をご利用の場合、サーバ実行に Java 21 が必要です。
 
 ### MySQLの設定
 ___注：ランキング機能を動作させる場合は、MySQLをローカルホストで動作させる必要があります___
@@ -24,6 +29,8 @@ Dockerがインストールされている環境でしたら、DockerによるMy
 3. 「docker compose down」で終了することができます
 
 （Windows環境の方はターミナルとしてGit BashやWSLをご使用ください）
+
+※ Apple Silicon Mac (M シリーズ) でも追加設定なしでネイティブ動作します。
 
 __DockerによるMySQLの構築は下記のハンズオンを参考にさせていただきました__  
 https://github.com/yoshi-koyama/docker-mysql-hands-on
@@ -53,4 +60,21 @@ CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), s
 ```sql
 CREATE TABLE mininggame_score(id int auto_increment, player_name varchar(100), score int, registered_at datetime, primary key(id)) DEFAULT CHARSET=utf8;
 ```
+
+### ビルド方法
+ソースからプラグインをビルドする場合の手順です（リリース済みのjarを使う場合は不要です）。
+
+必要環境:
+- JDK 21 (推奨。最小は JDK 17)
+
+ビルド:
+```bash
+./gradlew shadowJar
+```
+
+生成物 `build/libs/miningGameK-1.0-SNAPSHOT-all.jar` を、
+Spigot / Paper サーバの `plugins/` フォルダにコピーして再起動してください。
+
+※ MyBatis と MySQL JDBC ドライバを同梱する必要があるため、通常の `build` ではなく
+`shadowJar` タスクで生成された `-all.jar` を使用してください。
 
