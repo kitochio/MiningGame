@@ -20,6 +20,12 @@ https://github.com/user-attachments/assets/9e8f8b8b-c775-4aeb-8472-cddcefab366f
 PaperMC の新しいバージョンでもそのまま動作します。
 PaperMC 1.20.5 以降をご利用の場合、サーバ実行に Java 21 が必要です。
 
+### プラグインの導入方法
+1. 後述の「ビルド方法」セクションに従って `miningGameK-1.0-SNAPSHOT-all.jar` を生成します。
+2. Spigot / PaperMC サーバの `plugins/` フォルダに jar をコピーします。
+3. サーバを起動（既に起動している場合は再起動）します。
+4. 起動ログに `[miningGameK] Enabling miningGameK v1.0-SNAPSHOT` と表示されれば導入成功です。
+
 ### MySQLの設定
 ___注：ランキング機能を動作させる場合は、MySQLをローカルホストで動作させる必要があります___
 
